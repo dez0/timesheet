@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+    <title>Rôles</title>
+    <!--/*/ <th:block th:include="fragments/general :: header_files"></th:block> /*/-->
+</head>
+<body>
+<div th:replace="fragments/general :: header (active='roles')"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Liste des rôles</h1>
+            <button class="btn btn-success trigger-add trigger-add-role" data-toggle="modal" data-target="#editModal">Ajouter un rôle</button>
+			<div th:replace="fragments/role :: list (roles=${allRoles})"></div>
+        </div>
+    </div>
+	<div th:include="fragments/role :: editModal"></div>
+	<div th:include="fragments/role :: deleteModal"></div>
+</div>
+<!--/*/ <th:block th:include="fragments/general :: footer_files"></th:block> /*/-->
+<script>
+	$(document).ready(function() {	    
+		var baseUrl = "http://localhost:8080/roles";
+	    
+	    function clearModalFields(title) {
+	    	$("#editModal .modal-title").text(title);
+			$("#id").val("");
+			$("#name").val("");
+	    }
+	    
+	    $(".trigger-add-role").on("click", function() {
+	    	clearModalFields("Ajouter un rôle");
+	    });
+	    
+	    $(".trigger-edit-role").on("click", function() {
+	    	clearModalFields("Modifier un rôle");
+	    	
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#id").val(data.id);
+				$("#name").val(data.name);
+		    });
+	    });
+	    
+	    $('#save-role').click(function() {
+	        $.ajax({
+	            type: "POST",
+				url : baseUrl+"/save",
+				data : $('form[name=editRoleForm]').serialize(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	    
+	    $(".trigger-delete-role").on("click", function() {
+	    	$("#delete-name").text("");
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#delete-id").val(data.id);
+				$("#delete-name").text('"'+data.name+'"');
+		    });
+	    });
+	    
+	    $('#delete-role').click(function() {
+	        $.ajax({
+				url : baseUrl+"/delete/"+$("#delete-id").val(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	});
+</script>
+
+</body>
+</html>

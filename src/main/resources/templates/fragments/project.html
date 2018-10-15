@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+</head>
+<body>
+	<th:block th:fragment="list">
+		<table class="table table-bordered table-striped datatable">
+			<thead>
+				<tr>
+					<th>Nom</th>
+					<th>Description</th>
+					<th>Client</th>
+					<th>Chef de projet</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="project : ${projects}" th:attr="data-id=${{project.id}}">
+					<td th:text="${{project.name}}">nom</td>
+					<td th:text="${{project.description}}">description</td>
+					<td th:text="${{project.client.name}}">client</td>
+					<td th:text="${{project.projectManager.fullname}}">description</td>
+					<td>
+						<i class="action glyphicon glyphicon-eye-open trigger-view-project"></i>
+						<i class="action glyphicon glyphicon-pencil trigger-edit-project" data-toggle="modal" data-target="#editModal"></i>
+						<i class="action glyphicon glyphicon-trash trigger-delete-project" data-toggle="modal" data-target="#deleteModal"></i>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</th:block>
+	
+	<th:block th:fragment="editModal">
+		<div id="editModal" class="modal" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" style="display:inline-block">Ajouter un projet</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form name="editProjectForm" th:object="${project}">
+							<input th:field="*{id}" type="hidden" />
+							<div class="form-group">
+								<label for="name" class="control-label">Nom</label>
+								<input type="text" class="form-control" th:field="*{name}">
+							</div>
+							<div class="form-group">
+								<label for="description" class="control-label">Description</label>
+								<input type="text" class="form-control" th:field="*{description}">
+							</div>
+							<div class="form-group">
+								<label for="client" class="control-label">Client</label>
+								<select class="form-control" th:field="*{client}">
+									<option th:each="client : ${clients}"
+											th:value="${client.id}"
+											th:text="${client.name}">
+									</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="roles" class="control-label">Chef de projet</label>
+								<select class="form-control" th:field="*{projectManager}">
+									<option th:each="manager : ${projectManagers}"
+											th:value="${manager.id}"
+											th:text="${manager.fullname}">
+									</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="roles" class="control-label">Employé(s) assigné(s)</label>
+								<select class="form-control" th:field="*{assignedEmployees}" multiple>
+									<option th:each="employee : ${employees}"
+											th:value="${employee.id}"
+											th:text="${employee.fullname}">
+									</option>
+								</select>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" id="save-project">Enregistrer</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+	
+	<th:block th:fragment="deleteModal">
+		<div id="deleteModal" class="modal" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" style="display:inline-block">Supprimer un projet</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="delete-id" />
+						<b>Êtes-vous sur de vouloir supprimer le projet <span id="delete-name"></span>?</b>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" id="delete-project">Supprimer</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+	
+</body>
+</html>

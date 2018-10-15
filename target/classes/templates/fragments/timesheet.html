@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+</head>
+<body>
+	<th:block th:fragment="list">
+		<table class="table table-bordered table-striped datatable">
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Note</th>
+					<th>Statut</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="timesheet : ${timesheets}" th:attr="data-id=${{timesheet.id}}">
+					<td th:text="${{timesheet.formattedDateRange}}">date</td>
+					<td th:text="${{timesheet.notes}}">notes</td>
+					<td th:text="${{timesheet.timesheetStatus.name}}">status</td>
+					<td>
+						<a th:href="${{'/timesheets/' + timesheet.id}}"><i class="action glyphicon glyphicon-eye-open trigger-view-timesheet"></i></a>
+						<a th:href="${{'/timesheets/' + timesheet.id + '/edit'}}"><i class="action glyphicon glyphicon-pencil trigger-edit-timesheet"></i></a>
+						<i class="action glyphicon glyphicon-trash trigger-delete-timesheet" data-toggle="modal" data-target="#deleteModal"></i>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</th:block>
+	
+	<th:block th:fragment="editModal">
+		<div id="editModal" class="modal" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" style="display:inline-block">Ajouter une feuille de temps</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form name="addTimesheetForm">
+							<div class="form-group">
+								<label for="date" class="control-label">Date</label>
+								<input type="date" class="form-control" name="timesheetDate" id="timesheetDate">
+							</div>
+							<div class="form-group">
+								<label for="client" class="control-label">Projet</label>
+								<select class="form-control" name="project">
+									<option th:each="project : ${projects}"
+											th:value="${project.id}"
+											th:text="${project.name}">
+									</option>
+								</select>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" id="add-timesheet">Ajouter</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+	
+	<th:block th:fragment="deleteModal">
+		<div id="deleteModal" class="modal" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" style="display:inline-block">Supprimer une feuille de temps</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="delete-id" />
+						<b>Êtes-vous sur de vouloir supprimer la feuille de temps <span id="delete-name"></span>?</b>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" id="delete-timesheet">Supprimer</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+	
+</body>
+</html>

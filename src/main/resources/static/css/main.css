@@ -1,0 +1,32 @@
+.container { margin-top: 50px; }
+
+.modal-header .close { margin-top: 5px; }
+
+.select2-container { display: block!important; }
+
+.trigger-add { float:right; margin-bottom: -32px; }
+.table i.action { cursor: pointer; margin-right: 10px; }
+
+.dataTables_wrapper { position: initial; }
+.dataTables_wrapper .dataTables_filter { float: left; }
+.dataTables_wrapper .dataTables_filter input { margin-left: 0!important; }
+.dataTables_wrapper .dataTable thead .sorting, table.dataTable thead .sorting_desc, table.dataTable thead .sorting_asc { background-image: none!important; }
+.dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0; margin-left: 0; }
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover { border: 1px solid #fff!important}
+
+.row-eq-height {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+#toApproveBadge {
+	float: right;
+	margin-right: -21px;
+    margin-top: -10px;
+}
+
+.swal2-popup.swal2-toast .swal2-title {
+    font-size: 1.6em!important;
+}

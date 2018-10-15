@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+    <title>Employés</title>
+    <!--/*/ <th:block th:include="fragments/general :: header_files"></th:block> /*/-->
+</head>
+<body>
+<div th:replace="fragments/general :: header (active='employees')"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Liste des employés</h1>
+            <button class="btn btn-success trigger-add trigger-add-employee" data-toggle="modal" data-target="#editModal">Ajouter un employé</button>
+			<div th:replace="fragments/employee :: list (employees=${allEmployees})"></div>
+        </div>
+    </div>
+	<div th:include="fragments/employee :: editModal (managers=${allManagers}, roles=${allRoles},  departments=${allDepartments})"></div>
+	<div th:include="fragments/employee :: deleteModal"></div>
+</div>
+<!--/*/ <th:block th:include="fragments/general :: footer_files"></th:block> /*/-->
+<script>
+	$(document).ready(function() {	    
+	    $('#department').select2({
+	        placeholder: "Selectionner un département",
+	        dropdownParent: $("#editModal")
+	    });
+	    $('#manager').select2({
+	        placeholder: "Sélectionner un gestionnaire",
+	        dropdownParent: $("#editModal")
+	    });
+	    $('#roles').select2({
+	        placeholder: "Sélectionner des rôles",
+	        dropdownParent: $("#editModal")
+	    });
+	    
+		var baseUrl = "http://localhost:8080/employees";
+	    
+	    function clearModalFields(title) {
+	    	$("#editModal .modal-title").text(title);
+			$("#id").val("");
+			$("#firstname").val("");
+			$("#lastname").val("");
+			$("#email").val("");
+			$("#password").val("");
+	    	$("#department").val(null).trigger('change');
+	    	$("#manager").val(null).trigger('change');
+	    	$("#roles").val(null).trigger('change');
+	    }
+	    
+	    $(".trigger-add-employee").on("click", function() {
+	    	clearModalFields("Ajouter un employé");
+	    });
+	    
+	    $(".trigger-edit-employee").on("click", function() {
+	    	clearModalFields("Modifier un employé");
+	    	
+	    	var id = $(this).closest("tr").data("id");
+	    	var roles = [];
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#id").val(data.id);
+				$("#firstname").val(data.firstname);
+				$("#lastname").val(data.lastname);
+				$("#email").val(data.email);
+				
+				$("#department").val(data.department.id);
+				$("#department").trigger("change");
+				
+				$("#manager").val(data.manager.id);
+				$("#manager").trigger("change");
+				
+				data.roles.forEach(function(role) {
+					roles.push(role.id);
+				});
+				$("#roles").val(roles);
+				$("#roles").trigger("change");
+		    });
+	    });
+	    
+	    $('#save-employee').click(function() {
+	        $.ajax({
+	            type: "POST",
+				url : baseUrl+"/save",
+				data : $('form[name=editEmployeeForm]').serialize(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	    
+	    $(".trigger-delete-employee").on("click", function() {
+	    	$("#delete-fullname").text("");
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#delete-id").val(data.id);
+				$("#delete-fullname").text('"'+data.fullname+'"');
+		    });
+	    });
+	    
+	    $('#delete-employee').click(function() {
+	        $.ajax({
+				url : baseUrl+"/delete/"+$("#delete-id").val(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	});
+</script>
+
+</body>
+</html>

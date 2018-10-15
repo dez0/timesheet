@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+    <title>Feuilles de temps</title>
+    <!--/*/ <th:block th:include="fragments/general :: header_files"></th:block> /*/-->
+</head>
+<body>
+<div th:replace="fragments/general :: header (active='timesheets')"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Vos feuilles de temps</h1>
+            <button class="btn btn-success trigger-add trigger-add-timesheet" data-toggle="modal" data-target="#editModal">Ajouter une feuille de temps</button>
+			<div th:replace="fragments/timesheet :: list (timesheets=${allTimesheets})"></div>
+        </div>
+    </div>
+    <div class="row" th:if="${not #lists.isEmpty(allManagedEmployeeTimesheets)}">
+        <div class="col-md-12">
+            <h1>Feuilles de temps à approuver</h1>
+			<div th:replace="fragments/timesheet :: list (timesheets=${allManagedEmployeeTimesheets})"></div>
+        </div>
+    </div>
+	<div th:include="fragments/timesheet :: editModal (projects=${allProjects})"></div>
+	<div th:include="fragments/timesheet :: deleteModal"></div>
+</div>
+<!--/*/ <th:block th:include="fragments/general :: footer_files"></th:block> /*/-->
+<script>
+	$(document).ready(function() {
+	    $('#project').select2({
+	        placeholder: "Sélectionner un projet",
+	        dropdownParent: $("#editModal")
+	    });
+	    
+		var baseUrl = "http://localhost:8080/timesheets";
+	    
+	    function clearModalFields(title) {
+	    	$("#editModal .modal-title").text(title);
+			$("#id").val("");
+			document.querySelector("#timesheetDate").valueAsDate = new Date();
+	    	$("#project").val(null).trigger('change');
+	    }
+	    
+	    $(".trigger-add-timesheet").on("click", function() {
+	    	clearModalFields("Ajouter une feuille de temps");
+	    });
+	    
+	    $('#add-timesheet').click(function() {
+	        $.ajax({
+	            type: "POST",
+				url : baseUrl+"/add",
+				data : $('form[name=addTimesheetForm]').serialize(),
+				success : function(id) {
+					window.location = baseUrl+"/"+id+"/edit";
+				}
+	        });
+	    });
+	    
+	    $(".trigger-delete-timesheet").on("click", function() {
+	    	$("#delete-name").text("");
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#delete-id").val(data.id);
+				$("#delete-name").text('"'+data.name+'"');
+		    });
+	    });
+	    
+	    $('#delete-timesheet').click(function() {
+	        $.ajax({
+				url : baseUrl+"/delete/"+$("#delete-id").val(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	    
+	    // Alerts
+	    
+		if (window.location.search.indexOf('submit=true') > -1) {
+			toast({
+				type: 'success',
+				title: 'Votre feuille de temps a été soumise avec succès'
+			});
+		}
+	    
+		if (window.location.search.indexOf('approve=true') > -1) {
+			toast({
+				type: 'success',
+				title: 'La feuille de temps a été approuvée avec succès'
+			});
+		}
+		
+		if (window.location.search.indexOf('refuse=true') > -1) {
+			toast({
+				type: 'error',
+				title: 'La feuille de temps refusée a été retournée à l\'employé.'
+			});
+		}
+	});
+</script>
+
+</body>
+</html>

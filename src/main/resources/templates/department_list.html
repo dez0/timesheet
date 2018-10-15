@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+    <title>Départements</title>
+    <!--/*/ <th:block th:include="fragments/general :: header_files"></th:block> /*/-->
+</head>
+<body>
+<div th:replace="fragments/general :: header (active='departments')"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Liste des départements</h1>
+            <button class="btn btn-success trigger-add trigger-add-department" data-toggle="modal" data-target="#editModal">Ajouter un département</button>
+			<div th:replace="fragments/department :: list (departments=${allDepartments})"></div>
+        </div>
+    </div>
+	<div th:include="fragments/department :: editModal"></div>
+	<div th:include="fragments/department :: deleteModal"></div>
+</div>
+<!--/*/ <th:block th:include="fragments/general :: footer_files"></th:block> /*/-->
+<script>
+	$(document).ready(function() {	    
+		var baseUrl = "http://localhost:8080/departments";
+	    
+	    function clearModalFields(title) {
+	    	$("#editModal .modal-title").text(title);
+			$("#id").val("");
+			$("#name").val("");
+	    }
+	    
+	    $(".trigger-add-department").on("click", function() {
+	    	clearModalFields("Ajouter un département");
+	    });
+	    
+	    $(".trigger-edit-department").on("click", function() {
+	    	clearModalFields("Modifier un département");
+	    	
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#id").val(data.id);
+				$("#name").val(data.name);
+		    });
+	    });
+	    
+	    $('#save-department').click(function() {
+	        $.ajax({
+	            type: "POST",
+				url : baseUrl+"/save",
+				data : $('form[name=editDepartmentForm]').serialize(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	    
+	    $(".trigger-delete-department").on("click", function() {
+	    	$("#delete-name").text("");
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#delete-id").val(data.id);
+				$("#delete-name").text('"'+data.name+'"');
+		    });
+	    });
+	    
+	    $('#delete-department').click(function() {
+	        $.ajax({
+				url : baseUrl+"/delete/"+$("#delete-id").val(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	});
+</script>
+
+</body>
+</html>

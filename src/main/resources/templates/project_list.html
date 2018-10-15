@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+    <title>Projets</title>
+    <!--/*/ <th:block th:include="fragments/general :: header_files"></th:block> /*/-->
+</head>
+<body>
+<div th:replace="fragments/general :: header (active='projects')"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Liste des projets</h1>
+            <button class="btn btn-success trigger-add trigger-add-project" data-toggle="modal" data-target="#editModal">Ajouter un projet</button>
+			<div th:replace="fragments/project :: list (projects=${allProjects})"></div>
+        </div>
+    </div>
+	<div th:include="fragments/project :: editModal (clients=${allClients}, projectManagers=${allProjectManagers}, employees=${allEmployees})"></div>
+	<div th:include="fragments/project :: deleteModal"></div>
+</div>
+<!--/*/ <th:block th:include="fragments/general :: footer_files"></th:block> /*/-->
+<script>
+	$(document).ready(function() {
+	    $('#projectManager').select2({
+	        placeholder: "Sélectionner un chef de projet",
+	        dropdownParent: $("#editModal")
+	    });
+	    $('#client').select2({
+	        placeholder: "Sélectionner un client",
+	        dropdownParent: $("#editModal")
+	    });
+	    $('#assignedEmployees').select2({
+	        placeholder: "Sélectionner des employés",
+	        dropdownParent: $("#editModal")
+	    });
+	    
+		var baseUrl = "http://localhost:8080/projects";
+	    
+	    function clearModalFields(title) {
+	    	$("#editModal .modal-title").text(title);
+			$("#id").val("");
+			$("#name").val("");
+			$("#description").val("");
+	    	$("#client").val(null).trigger('change');
+	    	$("#projectManager").val(null).trigger('change');
+	    	$("#assignedEmployees").val(null).trigger('change');
+	    }
+	    
+	    $(".trigger-add-project").on("click", function() {
+	    	clearModalFields("Ajouter un projet");
+	    });
+	    
+	    $(".trigger-edit-project").on("click", function() {
+	    	clearModalFields("Modifier un projet");
+	    	
+	    	var id = $(this).closest("tr").data("id");
+	    	var assignedEmployees = [];
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#id").val(data.id);
+				$("#name").val(data.name);
+				$("#description").val(data.description);
+				
+				$("#client").val(data.client.id);
+				$("#client").trigger("change");
+				
+				$("#projectManager").val(data.projectManager.id);
+				$("#projectManager").trigger("change");
+				
+				data.assignedEmployees.forEach(function(employee) {
+					assignedEmployees.push(employee.id);
+				});
+				
+				$("#assignedEmployees").val(assignedEmployees);
+				$("#assignedEmployees").trigger("change");
+		    });
+	    });
+	    
+	    $('#save-project').click(function() {
+	        $.ajax({
+	            type: "POST",
+				url : baseUrl+"/save",
+				data : $('form[name=editProjectForm]').serialize(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	    
+	    $(".trigger-delete-project").on("click", function() {
+	    	$("#delete-name").text("");
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#delete-id").val(data.id);
+				$("#delete-name").text('"'+data.name+'"');
+		    });
+	    });
+	    
+	    $('#delete-project').click(function() {
+	        $.ajax({
+				url : baseUrl+"/delete/"+$("#delete-id").val(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	});
+</script>
+
+</body>
+</html>

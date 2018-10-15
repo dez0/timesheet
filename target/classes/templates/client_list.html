@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+    <title>Clients</title>
+    <!--/*/ <th:block th:include="fragments/general :: header_files"></th:block> /*/-->
+</head>
+<body>
+<div th:replace="fragments/general :: header (active='clients')"></div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Liste des clients</h1>
+            <button class="btn btn-success trigger-add trigger-add-client" data-toggle="modal" data-target="#editModal">Ajouter un client</button>
+			<div th:replace="fragments/client :: list (clients=${allClients})"></div>
+        </div>
+    </div>
+	<div th:include="fragments/client :: editModal"></div>
+	<div th:include="fragments/client :: deleteModal"></div>
+</div>
+<!--/*/ <th:block th:include="fragments/general :: footer_files"></th:block> /*/-->
+<script>
+	$(document).ready(function() {	    
+		var baseUrl = "http://localhost:8080/clients";
+	    
+	    function clearModalFields(title) {
+	    	$("#editModal .modal-title").text(title);
+			$("#id").val("");
+			$("#name").val("");
+	    }
+	    
+	    $(".trigger-add-client").on("click", function() {
+	    	clearModalFields("Ajouter un rôle");
+	    });
+	    
+	    $(".trigger-edit-client").on("click", function() {
+	    	clearModalFields("Modifier un rôle");
+	    	
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#id").val(data.id);
+				$("#name").val(data.name);
+		    });
+	    });
+	    
+	    $('#save-client').click(function() {
+	        $.ajax({
+	            type: "POST",
+				url : baseUrl+"/save",
+				data : $('form[name=editClientForm]').serialize(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	    
+	    $(".trigger-delete-client").on("click", function() {
+	    	$("#delete-name").text("");
+	    	var id = $(this).closest("tr").data("id");
+	    	
+		    $.ajax({
+		        url: baseUrl+"/find/"+id
+		    }).then(function(data) {
+				$("#delete-id").val(data.id);
+				$("#delete-name").text('"'+data.name+'"');
+		    });
+	    });
+	    
+	    $('#delete-client').click(function() {
+	        $.ajax({
+				url : baseUrl+"/delete/"+$("#delete-id").val(),
+				success : function(data) {
+					location.reload();
+				}
+	        });
+	     });
+	});
+</script>
+
+</body>
+</html>

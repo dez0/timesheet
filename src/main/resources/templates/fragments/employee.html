@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8" />
+</head>
+<body>
+	<th:block th:fragment="list">
+		<table class="table table-bordered table-striped datatable">
+			<thead>
+				<tr>
+					<th>Nom</th>
+					<th>Courriel</th>
+					<th>Département</th>
+					<th>Gestionnaire</th>
+					<th>Rôle(s)</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="employee : ${employees}" th:attr="data-id=${{employee.id}}">
+					<td th:text="${{employee.fullname}}">prenom nom</td>
+					<td th:text="${{employee.email}}">email</td>
+					<td th:text="${{employee.department.name}}">department</td>
+					<td th:text="${{employee.manager.fullname}}">manager</td>
+					<td th:text="${{employee.roleList}}">roles</td>
+					<td>
+						<i class="action glyphicon glyphicon-eye-open trigger-view-employee"></i>
+						<i class="action glyphicon glyphicon-pencil trigger-edit-employee" data-toggle="modal" data-target="#editModal"></i>
+						<i class="action glyphicon glyphicon-trash trigger-delete-employee" data-toggle="modal" data-target="#deleteModal"></i>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</th:block>
+	
+	<th:block th:fragment="editModal">
+		<div id="editModal" class="modal" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" style="display:inline-block">Ajouter un employé</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<form name="editEmployeeForm" th:object="${employee}">
+							<input th:field="*{id}" type="hidden" />
+							<div class="form-group">
+								<label for="firstname" class="control-label">Prénom</label>
+								<input type="text" class="form-control" th:field="*{firstname}">
+							</div>
+							<div class="form-group">
+								<label for="lastname" class="control-label">Nom</label>
+								<input type="text" class="form-control" th:field="*{lastname}">
+							</div>
+							<div class="form-group">
+								<label for="email" class="control-label">Adresse courriel</label>
+								<input type="email" class="form-control" th:field="*{email}">
+							</div>
+							<div class="form-group">
+								<label for="password" class="control-label">Mot de passe</label>
+								<input type="password" class="form-control" th:field="*{password}">
+							</div>
+							<div class="form-group">
+								<label for="roles" class="control-label">Département</label>
+								<select class="form-control" th:field="*{department}">
+									<option th:each="department : ${departments}"
+											th:value="${department.id}"
+											th:text="${department.name}">
+									</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="roles" class="control-label">Gestionnaire</label>
+								<select class="form-control" th:field="*{manager}">
+									<option th:each="manager : ${managers}"
+											th:value="${manager.id}"
+											th:text="${manager.fullname}">
+									</option>
+								</select>
+							</div>
+							<div class="form-group">
+								<label for="roles" class="control-label">Rôle(s)</label>
+								<select class="form-control" th:field="*{roles}" multiple>
+									<option th:each="role : ${roles}"
+											th:value="${role.id}"
+											th:text="${role.name}">
+									</option>
+								</select>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-primary" id="save-employee">Enregistrer</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+	
+	<th:block th:fragment="deleteModal">
+		<div id="deleteModal" class="modal" role="dialog">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" style="display:inline-block">Supprimer un employé</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="hidden" id="delete-id" />
+						<b>Êtes-vous sur de vouloir supprimer l'employé <span id="delete-fullname"></span>?</b>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-danger" id="delete-employee">Supprimer</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+	
+</body>
+</html>
